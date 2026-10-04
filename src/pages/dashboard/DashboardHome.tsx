@@ -35,7 +35,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { PageTourButton } from "@/components/dashboard/tour/PageTourButton";
-import { GuidedTour } from "@/components/dashboard/tour/GuidedTour";
 import { startDentistVisitTour } from "@/components/dashboard/tour/DentistVisitTourHost";
 import { EyeTodayScreen } from "@/components/dashboard/eye/EyeTodayScreen";
 import { useAddToWaitingList } from "@/hooks/useWaitingList";
