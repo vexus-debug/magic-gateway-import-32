@@ -45,3 +45,6 @@
 - [x] 5 Hide Shop & patient money from dentists
 - [x] 6 One main Finish button
 - [x] 7 In-visit notes panel
+
+## Dentist walkthrough
+- [x] Rewrite the visit walkthrough to follow the Active Visit bar flow (Consent, Chart, Plan, Rx, Notes, Finish) with click-by-click steps
