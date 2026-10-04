@@ -66,7 +66,7 @@ export function PatientVisitBar({ patientId, onClear }: { patientId: string; onC
 
   return (
     <>
-      <div className="sticky top-0 z-20 -mx-1 rounded-xl border border-secondary/30 bg-card/95 backdrop-blur px-3 py-2 shadow-sm flex items-center gap-2">
+      <div className="sticky top-0 z-20 -mx-1 rounded-xl border border-secondary/30 bg-card/95 backdrop-blur px-3 py-2 shadow-sm flex items-center gap-2" data-tour="visit-bar">
         <div className="flex items-center gap-2 min-w-0 mr-auto">
           <div className="h-7 w-7 rounded-full bg-secondary/15 flex items-center justify-center shrink-0">
             <User className="h-3.5 w-3.5 text-secondary" />
@@ -77,7 +77,7 @@ export function PatientVisitBar({ patientId, onClear }: { patientId: string; onC
           </div>
         </div>
         <div className="flex items-center gap-1">
-          <div className="hidden lg:flex items-center gap-1">
+          <div className="hidden lg:flex items-center gap-1" data-tour="visit-bar-jump">
             {items.map((it) => {
               const active = it.page !== "patient" && pathname.endsWith(`/${it.page}`);
               const Icon = it.done ? Check : it.icon;
@@ -98,7 +98,7 @@ export function PatientVisitBar({ patientId, onClear }: { patientId: string; onC
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="icon" variant="ghost" className="h-8 w-8 lg:hidden" aria-label="Jump to">
+              <Button size="icon" variant="ghost" className="h-8 w-8 lg:hidden" aria-label="Jump to" data-tour="visit-bar-jump-menu">
                 <Menu className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -117,11 +117,11 @@ export function PatientVisitBar({ patientId, onClear }: { patientId: string; onC
             </DropdownMenuContent>
           </DropdownMenu>
           {showNext && next && (
-            <Button size="sm" variant="outline" className="h-8 px-2 text-xs border-secondary/40" onClick={goNext}>
+            <Button size="sm" variant="outline" className="h-8 px-2 text-xs border-secondary/40" onClick={goNext} data-tour="visit-bar-next">
               Next: {next.label} <ArrowRight className="h-3.5 w-3.5 ml-1" />
             </Button>
           )}
-          <Button size="sm" className="h-8 px-2 text-xs bg-secondary hover:bg-secondary/90" onClick={() => setFinishOpen(true)}>
+          <Button size="sm" className="h-8 px-2 text-xs bg-secondary hover:bg-secondary/90" onClick={() => setFinishOpen(true)} data-tour="visit-bar-finish">
             <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Finish
           </Button>
           <Button size="icon" variant="ghost" className="h-8 w-8" aria-label="End visit context" onClick={clear}>
