@@ -35,8 +35,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { PageTourButton } from "@/components/dashboard/tour/PageTourButton";
-import { GuidedTour } from "@/components/dashboard/tour/GuidedTour";
-import { dentistVisitTour } from "@/config/tours/dentist-visit";
+import { startDentistVisitTour } from "@/components/dashboard/tour/DentistVisitTourHost";
 import { EyeTodayScreen } from "@/components/dashboard/eye/EyeTodayScreen";
 import { useAddToWaitingList } from "@/hooks/useWaitingList";
 import { DentistWaitingRoomCard } from "@/components/dashboard/DentistWaitingRoomCard";
@@ -49,7 +48,6 @@ import {
   useWeeklyAppointments,
 } from "@/hooks/useDashboardData";
 import { useOrg } from "@/hooks/useOrg";
-import { useWalkthroughPatient } from "@/hooks/useWalkthroughPatient";
 import { cn } from "@/lib/utils";
 
 type DashboardMode = "owner" | "dentist" | "receptionist";
@@ -219,10 +217,8 @@ function StandardDashboardHome() {
   const { data: userName } = useCurrentUserName();
   const { currentOrg, basePath } = useOrg();
   const checkIn = useAddToWaitingList();
-  const [walkOpen, setWalkOpen] = useState(false);
   // The walkthrough tours real patient screens, which only render with a
   // patient selected — so it runs against a phantom demo patient.
-  useWalkthroughPatient(walkOpen);
   const mode = roleMode(currentOrg?.role || "receptionist");
 
   const schedule = useMemo(() => {
@@ -303,10 +299,9 @@ function StandardDashboardHome() {
           <h1 className="mt-1 text-2xl font-bold text-foreground">{getGreeting()}, {userName || "there"}</h1>
         </div>
         <div className="flex items-center gap-2">
-          {mode === "dentist" && <Button size="sm" variant="outline" onClick={() => setWalkOpen(true)}>Walk through a visit</Button>}
+          {mode === "dentist" && <Button size="sm" variant="outline" onClick={startDentistVisitTour}>Walk through a visit</Button>}
           <PageTourButton />
         </div>
-        {mode === "dentist" && <GuidedTour tour={dentistVisitTour} open={walkOpen} onClose={() => setWalkOpen(false)} />}
       </div>
 
       {showOnboarding && (

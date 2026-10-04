@@ -8,6 +8,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { motion, AnimatePresence } from "framer-motion";
 import { MobileTabBar } from "./MobileTabBar";
 import { ViewAsBanner } from "./ViewAsBanner";
+import { DentistVisitTourHost } from "./tour/DentistVisitTourHost";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -22,6 +23,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     <SidebarProvider>
       <div className={`dashboard-theme ${appearance === "dark" ? "dark" : ""} flex h-dvh w-full overflow-hidden dashboard-bg`}>
         <DashboardSidebar />
+        <DentistVisitTourHost />
         <div className="flex flex-1 flex-col h-full overflow-hidden">
           <ViewAsBanner />
           <DashboardHeader
