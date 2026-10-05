@@ -66,22 +66,54 @@ export function GuidedTour({ tour, open, onClose }: GuidedTourProps) {
     setRect(el ? measure(el) : null);
   }, [step]);
 
-  // Navigate to the step's real page first (if it names one), then scroll the
-  // target into view and track it while it settles. After a navigation the
-  // target may mount asynchronously, so keep looking for up to 3s.
+  const currentPath = location.pathname.replace(/\/$/, "");
+  const pathFor = useCallback(
+    (s: TourStepDef): string | null => {
+      if (s.path === undefined) return null;
+      const prefix = currentPath.startsWith("/app") && !basePath.startsWith("/app") ? "/app" : "";
+      const base = `${prefix}${basePath}`;
+      return s.path === "" ? `${base}/dashboard` : `${base}/${s.path}`;
+    },
+    [basePath, currentPath]
+  );
+
+  // Keep latest location in refs so navigation only happens when the STEP
+  // changes — never because the user moved to another page themselves.
+  const locRef = useRef({ path: currentPath, search: location.search });
+  locRef.current = { path: currentPath, search: location.search };
+  const pathForRef = useRef(pathFor);
+  pathForRef.current = pathFor;
+
+  // Step changed (Next / Back) → go to that step's page if we're not on it.
   useEffect(() => {
     if (!open || !step) return;
-    if (step.path !== undefined) {
-      const prefix = location.pathname.startsWith("/app") && !basePath.startsWith("/app") ? "/app" : "";
-      const base = `${prefix}${basePath}`;
-      const wanted = step.path === "" ? `${base}/dashboard` : `${base}/${step.path}`;
-      const current = location.pathname.replace(/\/$/, "");
-      if (current !== wanted) {
-        // Keep the query string (e.g. ?patientId=) so the selected patient
-        // survives cross-page tour steps.
-        navigate({ pathname: wanted, search: location.search });
-      }
+    const wanted = pathForRef.current(step);
+    if (wanted && locRef.current.path !== wanted) {
+      // Keep the query string (e.g. ?patientId=) so the selected patient
+      // survives cross-page tour steps.
+      navigate({ pathname: wanted, search: locRef.current.search });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, index]);
+
+  // User moved to another page themselves (e.g. clicked "Next: Chart" in the
+  // visit bar) → follow them: jump to the matching step instead of dragging
+  // them back. Pages the tour doesn't cover (e.g. lab cases) keep the current
+  // step open so they can come back and continue.
+  useEffect(() => {
+    if (!open || !step) return;
+    const wanted = pathFor(step);
+    if (!wanted || wanted === currentPath) return;
+    const ahead = steps.findIndex((s, i) => i > index && pathFor(s) === currentPath);
+    const any = ahead >= 0 ? ahead : steps.findIndex((s) => pathFor(s) === currentPath);
+    if (any >= 0) setIndex(any);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPath]);
+
+  // Scroll the target into view and track it while it settles. After a
+  // navigation the target may mount asynchronously, so keep looking for 3s.
+  useEffect(() => {
+    if (!open || !step) return;
     const start = performance.now();
     let scrolled = false;
     const tick = () => {
@@ -92,8 +124,6 @@ export function GuidedTour({ tour, open, onClose }: GuidedTourProps) {
       }
       sync();
       const elapsed = performance.now() - start;
-      // Keep tracking while the page settles; keep searching longer when the
-      // target hasn't appeared yet (e.g. right after a page navigation).
       if (elapsed < 900 || (!el && elapsed < 3000)) {
         rafRef.current = requestAnimationFrame(tick);
       }
@@ -102,7 +132,7 @@ export function GuidedTour({ tour, open, onClose }: GuidedTourProps) {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [open, step, sync, basePath, location.pathname, navigate]);
+  }, [open, step, sync, currentPath]);
 
   useEffect(() => {
     if (!open) return;
