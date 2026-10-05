@@ -79,7 +79,9 @@ export default function PrescriptionsPage() {
           ))}
         </div>
       ) : prescriptions.length === 0 ? (
-        <EmptyState icon={FileText} title="No prescriptions yet" description="Create a prescription to get started with digital medication records." actionLabel="New Prescription" onAction={() => setRxOpen(true)} />
+        <div data-tour="prescriptions-list">
+          <EmptyState icon={FileText} title="No prescriptions yet" description="Create a prescription to get started with digital medication records." actionLabel="New Prescription" onAction={() => setRxOpen(true)} />
+        </div>
       ) : (
         <motion.div className="space-y-4" variants={stagger.container} initial="hidden" animate="visible" data-tour="prescriptions-list">
           {prescriptions.map((rx) => (

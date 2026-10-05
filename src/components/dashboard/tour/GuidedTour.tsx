@@ -53,12 +53,9 @@ export function GuidedTour({ tour, open, onClose }: GuidedTourProps) {
   const location = useLocation();
   const { basePath } = useOrg();
 
-  // Only keep steps whose target exists right now (plus target-less steps and
-  // steps that navigate to another page — their target appears after routing).
-  const steps = useMemo(() => {
-    if (!open) return tour.steps;
-    return tour.steps.filter((s) => !s.target || s.path || findTarget(s) !== null);
-  }, [open, tour.steps]);
+  // Keep every step stable — cross-page targets mount after navigation, and
+  // steps without a visible target fall back to a centred card.
+  const steps = useMemo(() => tour.steps, [tour.steps]);
 
   const total = steps.length;
   const step = steps[Math.min(index, total - 1)];
@@ -74,8 +71,10 @@ export function GuidedTour({ tour, open, onClose }: GuidedTourProps) {
   // target may mount asynchronously, so keep looking for up to 3s.
   useEffect(() => {
     if (!open || !step) return;
-    if (step.path) {
-      const wanted = step.path === "" ? basePath : `${basePath}/${step.path}`;
+    if (step.path !== undefined) {
+      const prefix = location.pathname.startsWith("/app") && !basePath.startsWith("/app") ? "/app" : "";
+      const base = `${prefix}${basePath}`;
+      const wanted = step.path === "" ? `${base}/dashboard` : `${base}/${step.path}`;
       const current = location.pathname.replace(/\/$/, "");
       if (current !== wanted) {
         // Keep the query string (e.g. ?patientId=) so the selected patient
