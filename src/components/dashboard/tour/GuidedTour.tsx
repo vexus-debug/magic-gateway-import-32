@@ -133,6 +133,10 @@ export function GuidedTour({ tour, open, onClose }: GuidedTourProps) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
+      // Don't hijack keys while the user is typing or using a dialog on the page.
+      const t = e.target as HTMLElement | null;
+      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+      if (document.querySelector('[role="dialog"]')) return;
       if (e.key === "Escape") onClose();
       if (e.key === "ArrowRight") goNext();
       if (e.key === "ArrowLeft") goPrev();
@@ -170,9 +174,11 @@ export function GuidedTour({ tour, open, onClose }: GuidedTourProps) {
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-[120]">
-      {/* Dimmed backdrop with a cut-out spotlight around the target */}
-      <div className="absolute inset-0" onClick={onClose}>
+    <div className="fixed inset-0 z-[120] pointer-events-none">
+      {/* Dimmed backdrop with a cut-out spotlight around the target. It never
+          closes the tour and lets clicks pass through, so the user can follow
+          "click here" instructions on the real page. Only Skip / X / Esc end it. */}
+      <div className="absolute inset-0 pointer-events-none">
         {rect ? (
           <motion.div
             animate={{
@@ -186,7 +192,7 @@ export function GuidedTour({ tour, open, onClose }: GuidedTourProps) {
             style={{ boxShadow: "0 0 0 9999px rgba(2,6,23,0.62)" }}
           />
         ) : (
-          <div className="absolute inset-0 bg-slate-950/60" />
+          <div className="absolute inset-0 bg-slate-950/60 pointer-events-none" />
         )}
       </div>
 
@@ -198,7 +204,7 @@ export function GuidedTour({ tour, open, onClose }: GuidedTourProps) {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -8, scale: 0.98 }}
           transition={{ duration: 0.18 }}
-          className="absolute rounded-2xl border border-border/70 bg-card shadow-2xl p-4"
+          className="absolute rounded-2xl border border-border/70 bg-card shadow-2xl p-4 pointer-events-auto"
           style={cardStyle}
         >
           <div className="flex items-start justify-between gap-3">
